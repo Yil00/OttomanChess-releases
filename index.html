@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OttomanChess — Assistant d'analyse d'échecs pour macOS</title>
+<meta name="description" content="OttomanChess : analyse d'échecs en temps réel sur lichess.org et chess.com. Overlay avec les meilleurs coups, moteurs locaux (Stockfish, Reckless, PlentyChess), export PGN annoté. Gratuit, notarié Apple, 100 % local.">
+<style>
+  :root {
+    --bg: #0f1419; --bg2: #171f28; --carte: #1c2632; --bord: #2a3644;
+    --texte: #e8edf2; --doux: #9fb0c0; --accent: #34C759; --accent2: #0A84FF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--texte); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; line-height: 1.6; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+
+  header { padding: 72px 0 48px; text-align: center; }
+  header img { width: 110px; height: 110px; border-radius: 26px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+  h1 { font-size: 2.6rem; margin: 20px 0 8px; letter-spacing: -0.5px; }
+  .accroche { color: var(--doux); font-size: 1.15rem; max-width: 640px; margin: 0 auto 32px; }
+  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .badge { background: var(--carte); border: 1px solid var(--bord); color: var(--doux); font-size: .8rem; padding: 5px 12px; border-radius: 999px; }
+  .cta { display: inline-block; background: var(--accent); color: #06130a; font-weight: 700; font-size: 1.05rem; padding: 14px 34px; border-radius: 14px; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(52,199,89,.35); }
+  .cta-secondaire { display: inline-block; margin-left: 12px; color: var(--accent2); text-decoration: none; font-weight: 600; padding: 14px 8px; }
+  .config { color: var(--doux); font-size: .85rem; margin-top: 14px; }
+
+  section { padding: 40px 0; }
+  h2 { font-size: 1.5rem; margin-bottom: 22px; }
+  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 16px; padding: 22px; }
+  .carte h3 { font-size: 1.02rem; margin-bottom: 8px; }
+  .carte p { color: var(--doux); font-size: .92rem; }
+  .carte .icone { font-size: 1.5rem; margin-bottom: 10px; }
+
+  .etapes { counter-reset: n; }
+  .etape { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+  .etape::before { counter-increment: n; content: counter(n); flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--accent2); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: .9rem; }
+  .etape p { padding-top: 3px; }
+  code { background: var(--carte); border: 1px solid var(--bord); border-radius: 6px; padding: 1px 7px; font-size: .88em; }
+
+  footer { border-top: 1px solid var(--bord); margin-top: 40px; padding: 28px 0 48px; color: var(--doux); font-size: .85rem; text-align: center; }
+  footer a { color: var(--accent2); text-decoration: none; }
+  .en { background: var(--bg2); border-radius: 16px; padding: 24px; color: var(--doux); font-size: .92rem; }
+  .en strong { color: var(--texte); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <img src="logo.jpg" alt="Logo OttomanChess">
+    <h1>OttomanChess</h1>
+    <p class="accroche">L'analyse d'échecs en temps réel, directement sur vos parties
+      lichess.org et chess.com — calculée <strong>localement</strong> sur votre Mac.</p>
+    <div class="badges">
+      <span class="badge">macOS 26.5+</span>
+      <span class="badge">Apple silicon</span>
+      <span class="badge">Notarié Apple</span>
+      <span class="badge">100 % local</span>
+      <span class="badge">Mises à jour automatiques</span>
+    </div>
+    <a class="cta" href="https://github.com/Yil00/OttomanChess-releases/releases/latest">⬇︎ Télécharger pour macOS</a>
+    <a class="cta-secondaire" href="https://github.com/Yil00/OttomanChess-releases/releases">Toutes les versions →</a>
+    <p class="config">DMG signé Developer ID — aucune alerte Gatekeeper à l'installation.</p>
+  </header>
+
+  <section>
+    <h2>Ce que fait OttomanChess</h2>
+    <div class="grille">
+      <div class="carte"><div class="icone">🎯</div><h3>Meilleurs coups en direct</h3>
+        <p>Jusqu'à 5 coups suggérés pendant vos parties lichess & chess.com, avec couleurs et opacité personnalisables — y compris quand vous jouez les noirs.</p></div>
+      <div class="carte"><div class="icone">🔍</div><h3>Lignes du moteur (PV)</h3>
+        <p>Survolez une flèche pour voir la variante complète calculée par le moteur, en notation standard.</p></div>
+      <div class="carte"><div class="icone">📄</div><h3>Export PGN annoté</h3>
+        <p>Votre partie est enregistrée avec l'évaluation de chaque position : exportez-la et importez-la dans une étude lichess ou chess.com.</p></div>
+      <div class="carte"><div class="icone">⚙️</div><h3>Trois moteurs au choix</h3>
+        <p>Stockfish 19, Reckless et PlentyChess — basculez en pleine partie, réglez profondeur et nombre de coups affichés.</p></div>
+      <div class="carte"><div class="icone">🔑</div><h3>Connexion en un clic</h3>
+        <p>Vos identifiants restent dans le Trousseau macOS ; vos sessions lichess et chess.com restent ouvertes.</p></div>
+      <div class="carte"><div class="icone">🚫</div><h3>Sans pubs ni traqueurs</h3>
+        <p>Bloqueur de pubs intégré (chess.com), zéro analytique, zéro compte : vos positions ne quittent jamais votre Mac.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Installation</h2>
+    <div class="etapes">
+      <div class="etape"><p>Téléchargez le <code>.dmg</code> de la <a href="https://github.com/Yil00/OttomanChess-releases/releases/latest" style="color:var(--accent2)">dernière version</a>.</p></div>
+      <div class="etape"><p>Ouvrez-le et glissez <strong>OttomanChess</strong> dans le dossier <strong>Applications</strong>.</p></div>
+      <div class="etape"><p>Lancez l'app, jouez sur lichess.org ou chess.com — l'analyse s'affiche toute seule. Les mises à jour suivantes seront proposées automatiquement.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="en">
+      <strong>In English —</strong> OttomanChess is a free macOS chess analysis assistant: a native overlay shows
+      engine best moves live on your lichess.org and chess.com games. Local engines only
+      (Stockfish 19, Reckless, PlentyChess), annotated PGN export, one-click profiles,
+      automatic updates, Apple-notarized. Requires an Apple silicon Mac running macOS 26.5+.
+      Download from the
+      <a href="https://github.com/Yil00/OttomanChess-releases/releases/latest" style="color:var(--accent2)">latest release</a>.
+    </div>
+  </section>
+
+  <footer>
+    <p>OttomanChess — code source privé, tous droits réservés.
+      Moteurs inclus sous leurs licences : Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).</p>
+    <p style="margin-top:8px"><a href="https://github.com/Yil00/OttomanChess-releases">Dépôt GitHub</a> ·
+      <a href="https://github.com/Yil00/OttomanChess-releases/issues">Signaler un bug</a> ·
+      <a href="https://github.com/Yil00/OttomanChess-releases/releases">Historique des versions</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
