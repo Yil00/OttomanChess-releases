@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>OttomanChess</title>
+    <link>https://github.com/Yil00/OttomanChess-releases/releases/tag/win-v1.0.0</link>
+    <description>Most recent changes with links to updates</description>
+    <language>en</language>
+    <item>
+      <title>OttomanChess 1.0.0</title>
+      <pubDate>Sun, 08 Nov 2026 23:16:01 +01:00</pubDate>
+      <sparkle:version>1.0.0</sparkle:version>
+      <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
+      <enclosure url="https://github.com/Yil00/OttomanChess-releases/releases/download/win-v1.0.0/OttomanChessSetup-1.0.0-arm64.exe" sparkle:version="1.0.0" sparkle:shortVersionString="1.0.0" length="193445185" sparkle:os="windows-arm64" type="application/x-msdos-program" sparkle:criticalUpdate="false" sparkle:signature="G7bL5d5Gy7dXL5J9ntAeOKAfp3kvFDj+vhB459mg3G3krQ/djUmF/9f3FlX5t3zWI3aib8rZf0SjMTReFH1iCA==" />
+    </item>
+  </channel>
+</rss>
