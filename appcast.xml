@@ -4,12 +4,12 @@
         <title>OttomanChess</title>
         <item>
             <title>1.4</title>
-            <pubDate>Sun, 08 Nov 2026 14:24:44 +0100</pubDate>
+            <pubDate>Sun, 08 Nov 2026 14:50:18 +0100</pubDate>
             <link>https://github.com/Yil00/OttomanChess-releases/releases</link>
             <sparkle:version>5</sparkle:version>
             <sparkle:shortVersionString>1.4</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>26.5</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/Yil00/OttomanChess-releases/releases/download/v1.4.0/OttomanChess-1.4.dmg" sparkle:edSignature="xwqGTXYTVwQJEZt6dkm63m0KobZXrsgJqAYWlUk9i1rsk0RQAwZqFcox16O+Skmn1XvWPRZK8VZ8ge0MmhBbBQ==" length="163980438" type="application/octet-stream"/>
+            <enclosure url="https://github.com/Yil00/OttomanChess-releases/releases/download/v1.4.1/OttomanChess-1.4.1.dmg" sparkle:edSignature="5YHKZe5bGDPMnZ9xq0CGaCdZ4eqcEDiJZxg9e72/JApfA90wjrMtHQtJ5sbepa9f7b6RIz60QyhHuCEJ3neXCA==" length="163980458" type="application/octet-stream"/>
         </item>
     </channel>
 </rss>
