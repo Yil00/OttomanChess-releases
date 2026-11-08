@@ -8,4 +8,4 @@ Le code source est prive. Ce depot heberge :
 
 ## Telechargement
 
-Voir la [derniere release](../../releases/latest). macOS Apple silicon, macOS 12+.
+Voir la [derniere release](../../releases/latest). Mac Apple silicon, macOS 26.5 ou ultérieur.
