@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OttomanChess — Chess analysis assistant for Windows</title>
+<meta name="description" content="OttomanChess for Windows: real-time chess analysis on lichess.org and chess.com. Overlay with best moves, local engines (Stockfish, Reckless, PlentyChess), annotated PGN export. Free, 100% local, x64 & ARM64.">
+<style>
+  :root {
+    --bg: #0f1419; --bg2: #171f28; --carte: #1c2632; --bord: #2a3644;
+    --texte: #e8edf2; --doux: #9fb0c0; --accent: #34C759; --accent2: #0A84FF;
+    --ombre-carte: 0 12px 40px rgba(0,0,0,.5);
+    --ombre-cta: 0 10px 30px rgba(52,199,89,.35);
+  }
+  [data-theme="light"] {
+    --bg: #f5f7fa; --bg2: #eceff3; --carte: #ffffff; --bord: #d8dfe7;
+    --texte: #1c2632; --doux: #5a6b7d; --accent: #28a745; --accent2: #0066cc;
+    --ombre-carte: 0 12px 40px rgba(0,0,0,.18);
+    --ombre-cta: 0 10px 30px rgba(40,167,69,.30);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--texte); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; line-height: 1.6; transition: background .25s, color .25s; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+
+  .toolbar { position: absolute; top: 18px; right: 24px; display: flex; gap: 8px; align-items: center; }
+  .toolbar button { background: var(--carte); border: 1px solid var(--bord); color: var(--doux); font-size: .8rem; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; transition: color .15s, border-color .15s; font-family: inherit; }
+  .toolbar button:hover { color: var(--texte); }
+  .toolbar button.actif { color: var(--texte); border-color: var(--accent2); }
+
+  header { padding: 84px 0 48px; text-align: center; }
+  header img { width: 110px; height: 110px; border-radius: 26px; box-shadow: var(--ombre-carte); }
+  h1 { font-size: 2.6rem; margin: 20px 0 8px; letter-spacing: -0.5px; }
+  h1 .plat { color: var(--accent2); }
+  .accroche { color: var(--doux); font-size: 1.15rem; max-width: 640px; margin: 0 auto 32px; }
+  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .badge { background: var(--carte); border: 1px solid var(--bord); color: var(--doux); font-size: .8rem; padding: 5px 12px; border-radius: 999px; }
+  .cta { display: inline-block; background: var(--accent); color: #06130a; font-weight: 700; font-size: 1.05rem; padding: 14px 34px; border-radius: 14px; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+  .cta:hover { transform: translateY(-2px); box-shadow: var(--ombre-cta); }
+  .cta-secondaire { display: inline-block; margin-left: 12px; color: var(--accent2); text-decoration: none; font-weight: 600; padding: 14px 8px; }
+  .astuce { color: var(--doux); font-size: .82rem; margin-top: 10px; }
+  .compteur { color: var(--doux); font-size: .88rem; margin-top: 16px; display: none; }
+  .compteur.visible { display: block; }
+  .nav-plat { margin-top: 26px; font-size: .92rem; }
+
+  section { padding: 40px 0; }
+  h2 { font-size: 1.5rem; margin-bottom: 22px; }
+  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 16px; padding: 22px; transition: background .25s, border-color .25s; }
+  .carte h3 { font-size: 1.02rem; margin-bottom: 8px; }
+  .carte p { color: var(--doux); font-size: .92rem; }
+  .carte .icone { font-size: 1.5rem; margin-bottom: 10px; }
+
+  .etapes { counter-reset: n; }
+  .etape { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+  .etape::before { counter-increment: n; content: counter(n); flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--accent2); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: .9rem; }
+  .etape p { padding-top: 3px; }
+  code { background: var(--carte); border: 1px solid var(--bord); border-radius: 6px; padding: 1px 7px; font-size: .88em; }
+
+  footer { border-top: 1px solid var(--bord); margin-top: 40px; padding: 28px 0 48px; color: var(--doux); font-size: .85rem; text-align: center; }
+  footer a { color: var(--accent2); text-decoration: none; }
+  a { color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button data-lang="en">EN</button>
+  <button data-lang="fr">FR</button>
+  <button data-lang="es">ES</button>
+  <button data-lang="de">DE</button>
+  <button id="theme-toggle" aria-label="Theme">☾</button>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <img src="logo.jpg" alt="OttomanChess logo">
+    <h1>OttomanChess <span class="plat">for Windows</span></h1>
+    <p class="accroche" data-i18n="accroche"></p>
+    <div class="badges">
+      <span class="badge">Windows 10 / 11</span>
+      <span class="badge">x64 · ARM64</span>
+      <span class="badge" data-i18n="badge-local"></span>
+      <span class="badge" data-i18n="badge-maj"></span>
+    </div>
+    <a class="cta" id="cta-x64" href="https://github.com/Yil00/OttomanChess-releases/releases" data-i18n="cta-x64"></a>
+    <a class="cta-secondaire" id="cta-arm64" href="https://github.com/Yil00/OttomanChess-releases/releases" data-i18n="cta-arm64"></a>
+    <p class="astuce" data-i18n="astuce"></p>
+    <p class="compteur" id="compteur"></p>
+    <p class="nav-plat"><a href="index.html" data-i18n="lien-mac"></a></p>
+  </header>
+
+  <section>
+    <h2 data-i18n="titre-features"></h2>
+    <div class="grille">
+      <div class="carte"><div class="icone">🎯</div><h3 data-i18n="f1t"></h3><p data-i18n="f1p"></p></div>
+      <div class="carte"><div class="icone">🔍</div><h3 data-i18n="f2t"></h3><p data-i18n="f2p"></p></div>
+      <div class="carte"><div class="icone">📄</div><h3 data-i18n="f3t"></h3><p data-i18n="f3p"></p></div>
+      <div class="carte"><div class="icone">⚙️</div><h3 data-i18n="f4t"></h3><p data-i18n="f4p"></p></div>
+      <div class="carte"><div class="icone">🔑</div><h3 data-i18n="f5t"></h3><p data-i18n="f5p"></p></div>
+      <div class="carte"><div class="icone">🚫</div><h3 data-i18n="f6t"></h3><p data-i18n="f6p"></p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-i18n="titre-install"></h2>
+    <div class="etapes">
+      <div class="etape"><p data-i18n-html="e1"></p></div>
+      <div class="etape"><p data-i18n-html="e2"></p></div>
+      <div class="etape"><p data-i18n-html="e3"></p></div>
+    </div>
+  </section>
+
+  <footer>
+    <p data-i18n="footer1"></p>
+    <p style="margin-top:8px"><a href="https://github.com/Yil00/OttomanChess-releases" data-i18n="footer-depot"></a> ·
+      <a href="https://github.com/Yil00/OttomanChess-releases/issues" data-i18n="footer-bug"></a> ·
+      <a href="https://github.com/Yil00/OttomanChess-releases/releases" data-i18n="footer-histo"></a></p>
+  </footer>
+
+</div>
+
+<script>
+const I18N = {
+  en: {
+    "accroche": "Real-time chess analysis, right on your lichess.org and chess.com games — computed <strong>locally</strong> on your Windows PC.",
+    "badge-local": "100% local", "badge-maj": "Automatic updates",
+    "cta-x64": "⬇︎ Download for Windows (x64)", "cta-arm64": "ARM64 version →",
+    "astuce": "Not sure? Almost all PCs are x64 — choose ARM64 only for Snapdragon devices (Surface Pro X, Copilot+ PCs…).",
+    "lien-mac": "🍎 Looking for the macOS version? →",
+    "dl-one": "1 download", "dl-many": "{n} downloads",
+    "titre-features": "What OttomanChess does",
+    "f1t": "Best moves, live", "f1p": "Up to 5 suggested moves during your lichess & chess.com games, with customizable colors and opacity — including when you play Black.",
+    "f2t": "Engine lines (PV)", "f2p": "Hover an arrow to see the full variation computed by the engine, in standard notation.",
+    "f3t": "Annotated PGN export", "f3p": "Your game is recorded with an evaluation for every position: export it and import it into a lichess or chess.com study.",
+    "f4t": "Three engines to choose from", "f4p": "Stockfish 19, Reckless and PlentyChess — switch mid-game, tune depth and the number of displayed moves.",
+    "f5t": "One-click sign-in", "f5p": "Your credentials stay in the Windows Credential Manager; your lichess and chess.com sessions stay open.",
+    "f6t": "No ads, no trackers", "f6p": "Built-in ad blocker (chess.com), zero analytics, zero accounts: your positions never leave your PC.",
+    "titre-install": "Installation",
+    "e1": "Download the <code>.exe</code> installer above (x64 for most PCs).",
+    "e2": "If Windows shows a SmartScreen warning, click <strong>More info → Run anyway</strong> — the installer is not code-signed yet (a paid certificate is planned).",
+    "e3": "Launch OttomanChess from the Start menu, play on lichess.org or chess.com — the analysis shows up by itself. Future updates install automatically.",
+    "footer1": "OttomanChess — private source code, all rights reserved. Bundled engines under their own licenses: Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).",
+    "footer-depot": "GitHub repository", "footer-bug": "Report a bug", "footer-histo": "Release history"
+  },
+  fr: {
+    "accroche": "L'analyse d'échecs en temps réel, directement sur vos parties lichess.org et chess.com — calculée <strong>localement</strong> sur votre PC Windows.",
+    "badge-local": "100 % local", "badge-maj": "Mises à jour automatiques",
+    "cta-x64": "⬇︎ Télécharger pour Windows (x64)", "cta-arm64": "Version ARM64 →",
+    "astuce": "Un doute ? La quasi-totalité des PC sont x64 — ne choisissez ARM64 que pour les appareils Snapdragon (Surface Pro X, Copilot+ PC…).",
+    "lien-mac": "🍎 Vous cherchez la version macOS ? →",
+    "dl-one": "1 téléchargement", "dl-many": "{n} téléchargements",
+    "titre-features": "Ce que fait OttomanChess",
+    "f1t": "Meilleurs coups en direct", "f1p": "Jusqu'à 5 coups suggérés pendant vos parties lichess & chess.com, avec couleurs et opacité personnalisables — y compris quand vous jouez les noirs.",
+    "f2t": "Lignes du moteur (PV)", "f2p": "Survolez une flèche pour voir la variante complète calculée par le moteur, en notation standard.",
+    "f3t": "Export PGN annoté", "f3p": "Votre partie est enregistrée avec l'évaluation de chaque position : exportez-la et importez-la dans une étude lichess ou chess.com.",
+    "f4t": "Trois moteurs au choix", "f4p": "Stockfish 19, Reckless et PlentyChess — basculez en pleine partie, réglez profondeur et nombre de coups affichés.",
+    "f5t": "Connexion en un clic", "f5p": "Vos identifiants restent dans le Gestionnaire d'identification Windows ; vos sessions lichess et chess.com restent ouvertes.",
+    "f6t": "Sans pubs ni traqueurs", "f6p": "Bloqueur de pubs intégré (chess.com), zéro analytique, zéro compte : vos positions ne quittent jamais votre PC.",
+    "titre-install": "Installation",
+    "e1": "Téléchargez l'installeur <code>.exe</code> ci-dessus (x64 pour la plupart des PC).",
+    "e2": "Si Windows affiche un avertissement SmartScreen, cliquez sur <strong>Informations complémentaires → Exécuter quand même</strong> — l'installeur n'est pas encore signé (certificat payant prévu).",
+    "e3": "Lancez OttomanChess depuis le menu Démarrer, jouez sur lichess.org ou chess.com — l'analyse s'affiche toute seule. Les mises à jour suivantes s'installent automatiquement.",
+    "footer1": "OttomanChess — code source privé, tous droits réservés. Moteurs inclus sous leurs licences : Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).",
+    "footer-depot": "Dépôt GitHub", "footer-bug": "Signaler un bug", "footer-histo": "Historique des versions"
+  },
+  es: {
+    "accroche": "Análisis de ajedrez en tiempo real, directamente en tus partidas de lichess.org y chess.com — calculado <strong>localmente</strong> en tu PC con Windows.",
+    "badge-local": "100 % local", "badge-maj": "Actualizaciones automáticas",
+    "cta-x64": "⬇︎ Descargar para Windows (x64)", "cta-arm64": "Versión ARM64 →",
+    "astuce": "¿Dudas? Casi todos los PC son x64 — elige ARM64 solo para dispositivos Snapdragon (Surface Pro X, Copilot+ PC…).",
+    "lien-mac": "🍎 ¿Buscas la versión para macOS? →",
+    "dl-one": "1 descarga", "dl-many": "{n} descargas",
+    "titre-features": "Qué hace OttomanChess",
+    "f1t": "Mejores jugadas en directo", "f1p": "Hasta 5 jugadas sugeridas durante tus partidas en lichess y chess.com, con colores y opacidad personalizables — también cuando juegas con negras.",
+    "f2t": "Líneas del motor (PV)", "f2p": "Pasa el cursor sobre una flecha para ver la variante completa calculada por el motor, en notación estándar.",
+    "f3t": "Exportación PGN anotada", "f3p": "Tu partida se guarda con la evaluación de cada posición: expórtala e impórtala en un estudio de lichess o chess.com.",
+    "f4t": "Tres motores a elegir", "f4p": "Stockfish 19, Reckless y PlentyChess — cambia en plena partida, ajusta la profundidad y el número de jugadas mostradas.",
+    "f5t": "Inicio de sesión en un clic", "f5p": "Tus credenciales permanecen en el Administrador de credenciales de Windows; tus sesiones de lichess y chess.com se mantienen abiertas.",
+    "f6t": "Sin anuncios ni rastreadores", "f6p": "Bloqueador de anuncios integrado (chess.com), cero analítica, cero cuentas: tus posiciones nunca salen de tu PC.",
+    "titre-install": "Instalación",
+    "e1": "Descarga el instalador <code>.exe</code> de arriba (x64 para la mayoría de los PC).",
+    "e2": "Si Windows muestra una advertencia de SmartScreen, haz clic en <strong>Más información → Ejecutar de todas formas</strong> — el instalador aún no está firmado (certificado de pago previsto).",
+    "e3": "Inicia OttomanChess desde el menú Inicio, juega en lichess.org o chess.com — el análisis aparece solo. Las siguientes actualizaciones se instalan automáticamente.",
+    "footer1": "OttomanChess — código fuente privado, todos los derechos reservados. Motores incluidos bajo sus licencias: Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).",
+    "footer-depot": "Repositorio GitHub", "footer-bug": "Reportar un error", "footer-histo": "Historial de versiones"
+  },
+  de: {
+    "accroche": "Schachanalyse in Echtzeit, direkt auf deinen Partien bei lichess.org und chess.com — <strong>lokal</strong> auf deinem Windows-PC berechnet.",
+    "badge-local": "100 % lokal", "badge-maj": "Automatische Updates",
+    "cta-x64": "⬇︎ Für Windows laden (x64)", "cta-arm64": "ARM64-Version →",
+    "astuce": "Unsicher? Fast alle PCs sind x64 — ARM64 nur für Snapdragon-Geräte (Surface Pro X, Copilot+-PCs…).",
+    "lien-mac": "🍎 Du suchst die macOS-Version? →",
+    "dl-one": "1 Download", "dl-many": "{n} Downloads",
+    "titre-features": "Was OttomanChess kann",
+    "f1t": "Beste Züge, live", "f1p": "Bis zu 5 Zugvorschläge während deiner Partien auf lichess & chess.com, mit anpassbaren Farben und Deckkraft — auch wenn du Schwarz spielst.",
+    "f2t": "Engine-Varianten (PV)", "f2p": "Fahre mit der Maus über einen Pfeil, um die vollständige Variante der Engine in Standardnotation zu sehen.",
+    "f3t": "Annotierter PGN-Export", "f3p": "Deine Partie wird mit der Bewertung jeder Stellung gespeichert: exportiere sie und importiere sie in eine lichess- oder chess.com-Studie.",
+    "f4t": "Drei Engines zur Wahl", "f4p": "Stockfish 19, Reckless und PlentyChess — mitten in der Partie wechseln, Tiefe und Anzahl der angezeigten Züge einstellen.",
+    "f5t": "Anmeldung mit einem Klick", "f5p": "Deine Zugangsdaten bleiben in der Windows-Anmeldeinformationsverwaltung; deine lichess- und chess.com-Sitzungen bleiben geöffnet.",
+    "f6t": "Keine Werbung, keine Tracker", "f6p": "Integrierter Werbeblocker (chess.com), keinerlei Analytik, keinerlei Konten: deine Stellungen verlassen nie deinen PC.",
+    "titre-install": "Installation",
+    "e1": "Lade das <code>.exe</code>-Installationsprogramm oben herunter (x64 für die meisten PCs).",
+    "e2": "Wenn Windows eine SmartScreen-Warnung zeigt, klicke auf <strong>Weitere Informationen → Trotzdem ausführen</strong> — das Installationsprogramm ist noch nicht signiert (ein kostenpflichtiges Zertifikat ist geplant).",
+    "e3": "Starte OttomanChess über das Startmenü, spiele auf lichess.org oder chess.com — die Analyse erscheint von selbst. Künftige Updates werden automatisch installiert.",
+    "footer1": "OttomanChess — privater Quellcode, alle Rechte vorbehalten. Enthaltene Engines unter ihren eigenen Lizenzen: Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).",
+    "footer-depot": "GitHub-Repository", "footer-bug": "Fehler melden", "footer-histo": "Versionsverlauf"
+  }
+};
+
+let langue = "en";
+function t(k) { return (I18N[langue] && I18N[langue][k]) || I18N.en[k] || k; }
+
+let totalTelechargements = null;
+
+function appliquerLangue(l) {
+  langue = I18N[l] ? l : "en";
+  localStorage.setItem("oc-lang", langue);
+  document.documentElement.lang = langue;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll(".toolbar [data-lang]").forEach(b => b.classList.toggle("actif", b.dataset.lang === langue));
+  if (totalTelechargements !== null) afficherCompteur();
+}
+
+function afficherCompteur() {
+  const el = document.getElementById("compteur");
+  const txt = totalTelechargements === 1 ? t("dl-one") : t("dl-many").replace("{n}", totalTelechargements.toLocaleString(langue));
+  el.textContent = "⬇ " + txt;
+  el.classList.add("visible");
+}
+
+fetch("https://api.github.com/repos/Yil00/OttomanChess-releases/releases")
+  .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+  .then(rels => {
+    totalTelechargements = rels.reduce((s, r) => s + r.assets.reduce((a, x) => a + (x.download_count || 0), 0), 0);
+    afficherCompteur();
+    // Dernière release Windows : branche les boutons sur les bons installeurs.
+    const win = rels.find(r => r.tag_name && r.tag_name.startsWith("win-v"));
+    if (win) {
+      const x64 = win.assets.find(a => a.name.endsWith("x64.exe"));
+      const arm64 = win.assets.find(a => a.name.endsWith("arm64.exe"));
+      if (x64) document.getElementById("cta-x64").href = x64.browser_download_url;
+      if (arm64) document.getElementById("cta-arm64").href = arm64.browser_download_url;
+    }
+  })
+  .catch(() => {});
+
+function appliquerTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem("oc-theme", theme);
+  document.getElementById("theme-toggle").textContent = theme === "light" ? "☀" : "☾";
+}
+
+document.querySelectorAll(".toolbar [data-lang]").forEach(b =>
+  b.addEventListener("click", () => appliquerLangue(b.dataset.lang)));
+document.getElementById("theme-toggle").addEventListener("click", () =>
+  appliquerTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
+
+appliquerTheme(localStorage.getItem("oc-theme") ||
+  (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+appliquerLangue(localStorage.getItem("oc-lang") || "en");
+</script>
+</body>
+</html>
