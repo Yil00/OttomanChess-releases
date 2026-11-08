@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>OttomanChess</title>
+        <item>
+            <title>1.4</title>
+            <pubDate>Sun, 08 Nov 2026 14:24:44 +0100</pubDate>
+            <link>https://github.com/Yil00/OttomanChess-releases/releases</link>
+            <sparkle:version>5</sparkle:version>
+            <sparkle:shortVersionString>1.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.5</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/Yil00/OttomanChess-releases/releases/download/v1.4.0/OttomanChess-1.4.dmg" sparkle:edSignature="xwqGTXYTVwQJEZt6dkm63m0KobZXrsgJqAYWlUk9i1rsk0RQAwZqFcox16O+Skmn1XvWPRZK8VZ8ge0MmhBbBQ==" length="163980438" type="application/octet-stream"/>
+        </item>
+    </channel>
+</rss>
