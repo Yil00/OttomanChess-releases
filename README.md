@@ -1,46 +1,46 @@
-# OttomanChess — Téléchargements & mises à jour
+# OttomanChess — Downloads & updates
 
-**OttomanChess** est un assistant d'analyse d'échecs pour macOS : un overlay s'affiche
-directement sur vos parties **lichess.org** et **chess.com** et montre les meilleurs coups
-calculés **localement** par un moteur d'échecs — rien ne quitte votre Mac.
+**OttomanChess** is a chess analysis assistant for macOS: an overlay appears
+right on your **lichess.org** and **chess.com** games and shows the best moves
+computed **locally** by a chess engine — nothing ever leaves your Mac.
 
-➡️ **[Télécharger la dernière version](https://github.com/Yil00/OttomanChess-releases/releases/latest)** · [Site de présentation](https://yil00.github.io/OttomanChess-releases/)
+➡️ **[Download the latest release](https://github.com/Yil00/OttomanChess-releases/releases/latest)** · [Project page](https://yil00.github.io/OttomanChess-releases/)
 
-## Fonctionnalités
+## Features
 
-- Analyse en direct de la position pendant vos parties (lichess & chess.com), aussi bien avec les blancs qu'avec les noirs
-- Jusqu'à **5 meilleurs coups** affichés, couleurs et opacité personnalisables
-- **Lignes complètes du moteur (PV)** au survol d'une flèche
-- **Historique d'analyse + export PGN annoté** (`[%eval …]`, importable dans lichess / chess.com)
-- **Choix du moteur** : Stockfish 19, Reckless, PlentyChess — bascule en pleine partie
-- Profondeur réglable, barre d'évaluation, bloqueur de pubs (chess.com)
-- Sessions persistantes par site, **profils de connexion en un clic** (Trousseau macOS)
-- Raccourcis clavier, **mises à jour automatiques** (Sparkle, signature EdDSA)
-- App **signée Developer ID et notariée par Apple**
+- Live position analysis during your games (lichess & chess.com), with White or Black
+- Up to **5 best moves** displayed, with customizable colors and opacity
+- **Full engine lines (PV)** when hovering an arrow
+- **Analysis history + annotated PGN export** (`[%eval …]`, importable into lichess / chess.com)
+- **Engine choice**: Stockfish 19, Reckless, PlentyChess — switch mid-game
+- Adjustable depth, evaluation bar, ad blocker (chess.com)
+- Persistent per-site sessions, **one-click sign-in profiles** (macOS Keychain)
+- Keyboard shortcuts, **automatic updates** (Sparkle, EdDSA-signed)
+- App **signed with Developer ID and notarized by Apple**
 
 ## Installation
 
-1. Téléchargez le `.dmg` de la [dernière release](../../releases/latest)
-2. Ouvrez-le et glissez **OttomanChess** dans **Applications**
-3. Lancez l'app — aucun avertissement Gatekeeper (app notariée)
+1. Download the `.dmg` from the [latest release](../../releases/latest)
+2. Open it and drag **OttomanChess** into **Applications**
+3. Launch the app — no Gatekeeper warning (notarized app)
 
-**Configuration requise** : Mac Apple silicon, macOS 26.5 ou ultérieur.
+**Requirements**: Apple silicon Mac, macOS 26.5 or later.
 
-## Confidentialité
+## Privacy
 
-- Les moteurs d'analyse tournent **100 % en local** — aucune position n'est envoyée en ligne
-- Aucun compte, aucune analytique, aucun traqueur
-- Les identifiants (optionnels) restent dans le **Trousseau macOS**
-- Ce dépôt ne contient que les DMG publiés et le flux de mises à jour : le code source est privé
+- Analysis engines run **100% locally** — no position is ever sent online
+- No accounts, no analytics, no trackers
+- Credentials (optional) stay in the **macOS Keychain**
+- This repository only contains published DMGs and the update feed: the source code is private
 
-## Ce dépôt
+## This repository
 
-- **Releases** : DMG notariés de chaque version (onglet [Releases](../../releases))
-- **`appcast.xml`** : flux de mises à jour automatiques Sparkle
-- **`index.html`** : page de présentation ([GitHub Pages](https://yil00.github.io/OttomanChess-releases/))
-- Un bug ou une idée ? Ouvrez une [issue](../../issues)
+- **Releases**: notarized DMGs for every version ([Releases tab](../../releases))
+- **`appcast.xml`**: Sparkle automatic-update feed
+- **`index.html`**: project page ([GitHub Pages](https://yil00.github.io/OttomanChess-releases/))
+- A bug or an idea? Open an [issue](../../issues)
 
-## Licences
+## Licenses
 
-Code source d'OttomanChess : privé, tous droits réservés.
-Moteurs tiers inclus sous leurs licences respectives : Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).
+OttomanChess source code: private, all rights reserved.
+Bundled third-party engines under their respective licenses: Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).

@@ -1,34 +1,48 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OttomanChess — Assistant d'analyse d'échecs pour macOS</title>
-<meta name="description" content="OttomanChess : analyse d'échecs en temps réel sur lichess.org et chess.com. Overlay avec les meilleurs coups, moteurs locaux (Stockfish, Reckless, PlentyChess), export PGN annoté. Gratuit, notarié Apple, 100 % local.">
+<title>OttomanChess — Chess analysis assistant for macOS</title>
+<meta name="description" content="OttomanChess: real-time chess analysis on lichess.org and chess.com. Overlay with best moves, local engines (Stockfish, Reckless, PlentyChess), annotated PGN export. Free, Apple-notarized, 100% local.">
 <style>
   :root {
     --bg: #0f1419; --bg2: #171f28; --carte: #1c2632; --bord: #2a3644;
     --texte: #e8edf2; --doux: #9fb0c0; --accent: #34C759; --accent2: #0A84FF;
+    --ombre-carte: 0 12px 40px rgba(0,0,0,.5);
+    --ombre-cta: 0 10px 30px rgba(52,199,89,.35);
+  }
+  [data-theme="light"] {
+    --bg: #f5f7fa; --bg2: #eceff3; --carte: #ffffff; --bord: #d8dfe7;
+    --texte: #1c2632; --doux: #5a6b7d; --accent: #28a745; --accent2: #0066cc;
+    --ombre-carte: 0 12px 40px rgba(0,0,0,.18);
+    --ombre-cta: 0 10px 30px rgba(40,167,69,.30);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg); color: var(--texte); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; line-height: 1.6; }
+  body { background: var(--bg); color: var(--texte); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; line-height: 1.6; transition: background .25s, color .25s; }
   .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
 
-  header { padding: 72px 0 48px; text-align: center; }
-  header img { width: 110px; height: 110px; border-radius: 26px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+  .toolbar { position: absolute; top: 18px; right: 24px; display: flex; gap: 8px; align-items: center; }
+  .toolbar button { background: var(--carte); border: 1px solid var(--bord); color: var(--doux); font-size: .8rem; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; transition: color .15s, border-color .15s; font-family: inherit; }
+  .toolbar button:hover { color: var(--texte); }
+  .toolbar button.actif { color: var(--texte); border-color: var(--accent2); }
+
+  header { padding: 84px 0 48px; text-align: center; }
+  header img { width: 110px; height: 110px; border-radius: 26px; box-shadow: var(--ombre-carte); }
   h1 { font-size: 2.6rem; margin: 20px 0 8px; letter-spacing: -0.5px; }
   .accroche { color: var(--doux); font-size: 1.15rem; max-width: 640px; margin: 0 auto 32px; }
   .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
   .badge { background: var(--carte); border: 1px solid var(--bord); color: var(--doux); font-size: .8rem; padding: 5px 12px; border-radius: 999px; }
   .cta { display: inline-block; background: var(--accent); color: #06130a; font-weight: 700; font-size: 1.05rem; padding: 14px 34px; border-radius: 14px; text-decoration: none; transition: transform .15s, box-shadow .15s; }
-  .cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(52,199,89,.35); }
+  .cta:hover { transform: translateY(-2px); box-shadow: var(--ombre-cta); }
   .cta-secondaire { display: inline-block; margin-left: 12px; color: var(--accent2); text-decoration: none; font-weight: 600; padding: 14px 8px; }
-  .config { color: var(--doux); font-size: .85rem; margin-top: 14px; }
+  .compteur { color: var(--doux); font-size: .88rem; margin-top: 16px; display: none; }
+  .compteur.visible { display: block; }
 
   section { padding: 40px 0; }
   h2 { font-size: 1.5rem; margin-bottom: 22px; }
   .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 16px; padding: 22px; }
+  .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 16px; padding: 22px; transition: background .25s, border-color .25s; }
   .carte h3 { font-size: 1.02rem; margin-bottom: 8px; }
   .carte p { color: var(--doux); font-size: .92rem; }
   .carte .icone { font-size: 1.5rem; margin-bottom: 10px; }
@@ -41,76 +55,191 @@
 
   footer { border-top: 1px solid var(--bord); margin-top: 40px; padding: 28px 0 48px; color: var(--doux); font-size: .85rem; text-align: center; }
   footer a { color: var(--accent2); text-decoration: none; }
-  .en { background: var(--bg2); border-radius: 16px; padding: 24px; color: var(--doux); font-size: .92rem; }
-  .en strong { color: var(--texte); }
+  a { color: var(--accent2); }
 </style>
 </head>
 <body>
+
+<div class="toolbar">
+  <button data-lang="en">EN</button>
+  <button data-lang="fr">FR</button>
+  <button data-lang="es">ES</button>
+  <button data-lang="de">DE</button>
+  <button id="theme-toggle" aria-label="Theme">☾</button>
+</div>
+
 <div class="wrap">
 
   <header>
-    <img src="logo.jpg" alt="Logo OttomanChess">
+    <img src="logo.jpg" alt="OttomanChess logo">
     <h1>OttomanChess</h1>
-    <p class="accroche">L'analyse d'échecs en temps réel, directement sur vos parties
-      lichess.org et chess.com — calculée <strong>localement</strong> sur votre Mac.</p>
+    <p class="accroche" data-i18n="accroche"></p>
     <div class="badges">
       <span class="badge">macOS 26.5+</span>
       <span class="badge">Apple silicon</span>
-      <span class="badge">Notarié Apple</span>
-      <span class="badge">100 % local</span>
-      <span class="badge">Mises à jour automatiques</span>
+      <span class="badge" data-i18n="badge-notarie"></span>
+      <span class="badge" data-i18n="badge-local"></span>
+      <span class="badge" data-i18n="badge-maj"></span>
     </div>
-    <a class="cta" href="https://github.com/Yil00/OttomanChess-releases/releases/latest">⬇︎ Télécharger pour macOS</a>
-    <a class="cta-secondaire" href="https://github.com/Yil00/OttomanChess-releases/releases">Toutes les versions →</a>
-    <p class="config">DMG signé Developer ID — aucune alerte Gatekeeper à l'installation.</p>
+    <a class="cta" href="https://github.com/Yil00/OttomanChess-releases/releases/latest" data-i18n="cta"></a>
+    <a class="cta-secondaire" href="https://github.com/Yil00/OttomanChess-releases/releases" data-i18n="cta2"></a>
+    <p class="compteur" id="compteur"></p>
   </header>
 
   <section>
-    <h2>Ce que fait OttomanChess</h2>
+    <h2 data-i18n="titre-features"></h2>
     <div class="grille">
-      <div class="carte"><div class="icone">🎯</div><h3>Meilleurs coups en direct</h3>
-        <p>Jusqu'à 5 coups suggérés pendant vos parties lichess & chess.com, avec couleurs et opacité personnalisables — y compris quand vous jouez les noirs.</p></div>
-      <div class="carte"><div class="icone">🔍</div><h3>Lignes du moteur (PV)</h3>
-        <p>Survolez une flèche pour voir la variante complète calculée par le moteur, en notation standard.</p></div>
-      <div class="carte"><div class="icone">📄</div><h3>Export PGN annoté</h3>
-        <p>Votre partie est enregistrée avec l'évaluation de chaque position : exportez-la et importez-la dans une étude lichess ou chess.com.</p></div>
-      <div class="carte"><div class="icone">⚙️</div><h3>Trois moteurs au choix</h3>
-        <p>Stockfish 19, Reckless et PlentyChess — basculez en pleine partie, réglez profondeur et nombre de coups affichés.</p></div>
-      <div class="carte"><div class="icone">🔑</div><h3>Connexion en un clic</h3>
-        <p>Vos identifiants restent dans le Trousseau macOS ; vos sessions lichess et chess.com restent ouvertes.</p></div>
-      <div class="carte"><div class="icone">🚫</div><h3>Sans pubs ni traqueurs</h3>
-        <p>Bloqueur de pubs intégré (chess.com), zéro analytique, zéro compte : vos positions ne quittent jamais votre Mac.</p></div>
+      <div class="carte"><div class="icone">🎯</div><h3 data-i18n="f1t"></h3><p data-i18n="f1p"></p></div>
+      <div class="carte"><div class="icone">🔍</div><h3 data-i18n="f2t"></h3><p data-i18n="f2p"></p></div>
+      <div class="carte"><div class="icone">📄</div><h3 data-i18n="f3t"></h3><p data-i18n="f3p"></p></div>
+      <div class="carte"><div class="icone">⚙️</div><h3 data-i18n="f4t"></h3><p data-i18n="f4p"></p></div>
+      <div class="carte"><div class="icone">🔑</div><h3 data-i18n="f5t"></h3><p data-i18n="f5p"></p></div>
+      <div class="carte"><div class="icone">🚫</div><h3 data-i18n="f6t"></h3><p data-i18n="f6p"></p></div>
     </div>
   </section>
 
   <section>
-    <h2>Installation</h2>
+    <h2 data-i18n="titre-install"></h2>
     <div class="etapes">
-      <div class="etape"><p>Téléchargez le <code>.dmg</code> de la <a href="https://github.com/Yil00/OttomanChess-releases/releases/latest" style="color:var(--accent2)">dernière version</a>.</p></div>
-      <div class="etape"><p>Ouvrez-le et glissez <strong>OttomanChess</strong> dans le dossier <strong>Applications</strong>.</p></div>
-      <div class="etape"><p>Lancez l'app, jouez sur lichess.org ou chess.com — l'analyse s'affiche toute seule. Les mises à jour suivantes seront proposées automatiquement.</p></div>
-    </div>
-  </section>
-
-  <section>
-    <div class="en">
-      <strong>In English —</strong> OttomanChess is a free macOS chess analysis assistant: a native overlay shows
-      engine best moves live on your lichess.org and chess.com games. Local engines only
-      (Stockfish 19, Reckless, PlentyChess), annotated PGN export, one-click profiles,
-      automatic updates, Apple-notarized. Requires an Apple silicon Mac running macOS 26.5+.
-      Download from the
-      <a href="https://github.com/Yil00/OttomanChess-releases/releases/latest" style="color:var(--accent2)">latest release</a>.
+      <div class="etape"><p data-i18n-html="e1"></p></div>
+      <div class="etape"><p data-i18n-html="e2"></p></div>
+      <div class="etape"><p data-i18n-html="e3"></p></div>
     </div>
   </section>
 
   <footer>
-    <p>OttomanChess — code source privé, tous droits réservés.
-      Moteurs inclus sous leurs licences : Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).</p>
-    <p style="margin-top:8px"><a href="https://github.com/Yil00/OttomanChess-releases">Dépôt GitHub</a> ·
-      <a href="https://github.com/Yil00/OttomanChess-releases/issues">Signaler un bug</a> ·
-      <a href="https://github.com/Yil00/OttomanChess-releases/releases">Historique des versions</a></p>
+    <p data-i18n="footer1"></p>
+    <p style="margin-top:8px"><a href="https://github.com/Yil00/OttomanChess-releases" data-i18n="footer-depot"></a> ·
+      <a href="https://github.com/Yil00/OttomanChess-releases/issues" data-i18n="footer-bug"></a> ·
+      <a href="https://github.com/Yil00/OttomanChess-releases/releases" data-i18n="footer-histo"></a></p>
   </footer>
 
 </div>
+
+<script>
+const I18N = {
+  en: {
+    "accroche": "Real-time chess analysis, right on your lichess.org and chess.com games — computed <strong>locally</strong> on your Mac.",
+    "badge-notarie": "Apple notarized", "badge-local": "100% local", "badge-maj": "Automatic updates",
+    "cta": "⬇︎ Download for macOS", "cta2": "All releases →",
+    "dl-one": "1 download", "dl-many": "{n} downloads",
+    "titre-features": "What OttomanChess does",
+    "f1t": "Best moves, live", "f1p": "Up to 5 suggested moves during your lichess & chess.com games, with customizable colors and opacity — including when you play Black.",
+    "f2t": "Engine lines (PV)", "f2p": "Hover an arrow to see the full variation computed by the engine, in standard notation.",
+    "f3t": "Annotated PGN export", "f3p": "Your game is recorded with an evaluation for every position: export it and import it into a lichess or chess.com study.",
+    "f4t": "Three engines to choose from", "f4p": "Stockfish 19, Reckless and PlentyChess — switch mid-game, tune depth and the number of displayed moves.",
+    "f5t": "One-click sign-in", "f5p": "Your credentials stay in the macOS Keychain; your lichess and chess.com sessions stay open.",
+    "f6t": "No ads, no trackers", "f6p": "Built-in ad blocker (chess.com), zero analytics, zero accounts: your positions never leave your Mac.",
+    "titre-install": "Installation",
+    "e1": "Download the <code>.dmg</code> from the <a href=\"https://github.com/Yil00/OttomanChess-releases/releases/latest\">latest release</a>.",
+    "e2": "Open it and drag <strong>OttomanChess</strong> into your <strong>Applications</strong> folder.",
+    "e3": "Launch the app, play on lichess.org or chess.com — the analysis shows up by itself. Future updates will be offered automatically.",
+    "footer1": "OttomanChess — private source code, all rights reserved. Bundled engines under their own licenses: Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).",
+    "footer-depot": "GitHub repository", "footer-bug": "Report a bug", "footer-histo": "Release history"
+  },
+  fr: {
+    "accroche": "L'analyse d'échecs en temps réel, directement sur vos parties lichess.org et chess.com — calculée <strong>localement</strong> sur votre Mac.",
+    "badge-notarie": "Notarié Apple", "badge-local": "100 % local", "badge-maj": "Mises à jour automatiques",
+    "cta": "⬇︎ Télécharger pour macOS", "cta2": "Toutes les versions →",
+    "dl-one": "1 téléchargement", "dl-many": "{n} téléchargements",
+    "titre-features": "Ce que fait OttomanChess",
+    "f1t": "Meilleurs coups en direct", "f1p": "Jusqu'à 5 coups suggérés pendant vos parties lichess & chess.com, avec couleurs et opacité personnalisables — y compris quand vous jouez les noirs.",
+    "f2t": "Lignes du moteur (PV)", "f2p": "Survolez une flèche pour voir la variante complète calculée par le moteur, en notation standard.",
+    "f3t": "Export PGN annoté", "f3p": "Votre partie est enregistrée avec l'évaluation de chaque position : exportez-la et importez-la dans une étude lichess ou chess.com.",
+    "f4t": "Trois moteurs au choix", "f4p": "Stockfish 19, Reckless et PlentyChess — basculez en pleine partie, réglez profondeur et nombre de coups affichés.",
+    "f5t": "Connexion en un clic", "f5p": "Vos identifiants restent dans le Trousseau macOS ; vos sessions lichess et chess.com restent ouvertes.",
+    "f6t": "Sans pubs ni traqueurs", "f6p": "Bloqueur de pubs intégré (chess.com), zéro analytique, zéro compte : vos positions ne quittent jamais votre Mac.",
+    "titre-install": "Installation",
+    "e1": "Téléchargez le <code>.dmg</code> de la <a href=\"https://github.com/Yil00/OttomanChess-releases/releases/latest\">dernière version</a>.",
+    "e2": "Ouvrez-le et glissez <strong>OttomanChess</strong> dans le dossier <strong>Applications</strong>.",
+    "e3": "Lancez l'app, jouez sur lichess.org ou chess.com — l'analyse s'affiche toute seule. Les mises à jour suivantes seront proposées automatiquement.",
+    "footer1": "OttomanChess — code source privé, tous droits réservés. Moteurs inclus sous leurs licences : Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).",
+    "footer-depot": "Dépôt GitHub", "footer-bug": "Signaler un bug", "footer-histo": "Historique des versions"
+  },
+  es: {
+    "accroche": "Análisis de ajedrez en tiempo real, directamente en tus partidas de lichess.org y chess.com — calculado <strong>localmente</strong> en tu Mac.",
+    "badge-notarie": "Notarizado por Apple", "badge-local": "100 % local", "badge-maj": "Actualizaciones automáticas",
+    "cta": "⬇︎ Descargar para macOS", "cta2": "Todas las versiones →",
+    "dl-one": "1 descarga", "dl-many": "{n} descargas",
+    "titre-features": "Qué hace OttomanChess",
+    "f1t": "Mejores jugadas en directo", "f1p": "Hasta 5 jugadas sugeridas durante tus partidas en lichess y chess.com, con colores y opacidad personalizables — también cuando juegas con negras.",
+    "f2t": "Líneas del motor (PV)", "f2p": "Pasa el cursor sobre una flecha para ver la variante completa calculada por el motor, en notación estándar.",
+    "f3t": "Exportación PGN anotada", "f3p": "Tu partida se guarda con la evaluación de cada posición: expórtala e impórtala en un estudio de lichess o chess.com.",
+    "f4t": "Tres motores a elegir", "f4p": "Stockfish 19, Reckless y PlentyChess — cambia en plena partida, ajusta la profundidad y el número de jugadas mostradas.",
+    "f5t": "Inicio de sesión en un clic", "f5p": "Tus credenciales permanecen en el Llavero de macOS; tus sesiones de lichess y chess.com se mantienen abiertas.",
+    "f6t": "Sin anuncios ni rastreadores", "f6p": "Bloqueador de anuncios integrado (chess.com), cero analítica, cero cuentas: tus posiciones nunca salen de tu Mac.",
+    "titre-install": "Instalación",
+    "e1": "Descarga el <code>.dmg</code> de la <a href=\"https://github.com/Yil00/OttomanChess-releases/releases/latest\">última versión</a>.",
+    "e2": "Ábrelo y arrastra <strong>OttomanChess</strong> a la carpeta <strong>Aplicaciones</strong>.",
+    "e3": "Inicia la app, juega en lichess.org o chess.com — el análisis aparece solo. Las siguientes actualizaciones se ofrecerán automáticamente.",
+    "footer1": "OttomanChess — código fuente privado, todos los derechos reservados. Motores incluidos bajo sus licencias: Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).",
+    "footer-depot": "Repositorio GitHub", "footer-bug": "Reportar un error", "footer-histo": "Historial de versiones"
+  },
+  de: {
+    "accroche": "Schachanalyse in Echtzeit, direkt auf deinen Partien bei lichess.org und chess.com — <strong>lokal</strong> auf deinem Mac berechnet.",
+    "badge-notarie": "Apple-notarisiert", "badge-local": "100 % lokal", "badge-maj": "Automatische Updates",
+    "cta": "⬇︎ Für macOS laden", "cta2": "Alle Versionen →",
+    "dl-one": "1 Download", "dl-many": "{n} Downloads",
+    "titre-features": "Was OttomanChess kann",
+    "f1t": "Beste Züge, live", "f1p": "Bis zu 5 Zugvorschläge während deiner Partien auf lichess & chess.com, mit anpassbaren Farben und Deckkraft — auch wenn du Schwarz spielst.",
+    "f2t": "Engine-Varianten (PV)", "f2p": "Fahre mit der Maus über einen Pfeil, um die vollständige Variante der Engine in Standardnotation zu sehen.",
+    "f3t": "Annotierter PGN-Export", "f3p": "Deine Partie wird mit der Bewertung jeder Stellung gespeichert: exportiere sie und importiere sie in eine lichess- oder chess.com-Studie.",
+    "f4t": "Drei Engines zur Wahl", "f4p": "Stockfish 19, Reckless und PlentyChess — mitten in der Partie wechseln, Tiefe und Anzahl der angezeigten Züge einstellen.",
+    "f5t": "Anmeldung mit einem Klick", "f5p": "Deine Zugangsdaten bleiben im macOS-Schlüsselbund; deine lichess- und chess.com-Sitzungen bleiben geöffnet.",
+    "f6t": "Keine Werbung, keine Tracker", "f6p": "Integrierter Werbeblocker (chess.com), keinerlei Analytik, keinerlei Konten: deine Stellungen verlassen nie deinen Mac.",
+    "titre-install": "Installation",
+    "e1": "Lade die <code>.dmg</code> der <a href=\"https://github.com/Yil00/OttomanChess-releases/releases/latest\">neuesten Version</a> herunter.",
+    "e2": "Öffne sie und ziehe <strong>OttomanChess</strong> in den Ordner <strong>Programme</strong>.",
+    "e3": "Starte die App, spiele auf lichess.org oder chess.com — die Analyse erscheint von selbst. Künftige Updates werden automatisch angeboten.",
+    "footer1": "OttomanChess — privater Quellcode, alle Rechte vorbehalten. Enthaltene Engines unter ihren eigenen Lizenzen: Stockfish (GPLv3), Reckless (AGPLv3), PlentyChess (GPL).",
+    "footer-depot": "GitHub-Repository", "footer-bug": "Fehler melden", "footer-histo": "Versionsverlauf"
+  }
+};
+
+let langue = "en";
+function t(k) { return (I18N[langue] && I18N[langue][k]) || I18N.en[k] || k; }
+
+let totalTelechargements = null;
+
+function appliquerLangue(l) {
+  langue = I18N[l] ? l : "en";
+  localStorage.setItem("oc-lang", langue);
+  document.documentElement.lang = langue;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll(".toolbar [data-lang]").forEach(b => b.classList.toggle("actif", b.dataset.lang === langue));
+  if (totalTelechargements !== null) afficherCompteur();
+}
+
+function afficherCompteur() {
+  const el = document.getElementById("compteur");
+  const txt = totalTelechargements === 1 ? t("dl-one") : t("dl-many").replace("{n}", totalTelechargements.toLocaleString(langue));
+  el.textContent = "⬇ " + txt;
+  el.classList.add("visible");
+}
+
+fetch("https://api.github.com/repos/Yil00/OttomanChess-releases/releases")
+  .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+  .then(rels => {
+    totalTelechargements = rels.reduce((s, r) => s + r.assets.reduce((a, x) => a + (x.download_count || 0), 0), 0);
+    afficherCompteur();
+  })
+  .catch(() => {});
+
+function appliquerTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem("oc-theme", theme);
+  document.getElementById("theme-toggle").textContent = theme === "light" ? "☀" : "☾";
+}
+
+document.querySelectorAll(".toolbar [data-lang]").forEach(b =>
+  b.addEventListener("click", () => appliquerLangue(b.dataset.lang)));
+document.getElementById("theme-toggle").addEventListener("click", () =>
+  appliquerTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
+
+appliquerTheme(localStorage.getItem("oc-theme") ||
+  (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+appliquerLangue(localStorage.getItem("oc-lang") || "en");
+</script>
 </body>
 </html>
